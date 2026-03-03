@@ -86,4 +86,12 @@ This project demonstrates integration of:
 
 ## 📷 Screenshots & Hardware Setup
 
-(Add UI screenshots + Arduino setup photos here)
+
+<img width="1600" height="758" alt="Screenshot (13)" src="https://github.com/user-attachments/assets/1ac8b814-9fd8-4e87-9464-7298141e7e15" />
+<img width="1600" height="763" alt="Screenshot (24)" src="https://github.com/user-attachments/assets/0dd4cc7a-f685-40f7-b933-5b4e433922af" />
+<img width="1600" height="763" alt="Screenshot (22)" src="https://github.com/user-attachments/assets/5233aac8-28c4-4ee8-9dbb-459606fada74" />
+<img width="1600" height="763" alt="Screenshot (20)" src="https://github.com/user-attachments/assets/ec049314-887e-4d6a-aabd-542038a75740" />
+<img width="1600" height="763" alt="Screenshot (19)" src="https://github.com/user-attachments/assets/5ef8021f-ebdb-427a-9777-7140f02a8d72" />
+<img width="1600" height="754" alt="Screenshot (16)" src="https://github.com/user-attachments/assets/90f1e0fc-4246-40df-8545-d00f6b5570a5" />
+<img width="1600" height="754" alt="Screenshot (15)" src="https://github.com/user-attachments/assets/cde931be-d1eb-4636-b9f2-37987f197ee4" />
+![IMG_20250625_121536](https://github.com/user-attachments/assets/2119ea6b-24d3-4950-b0fa-1285b36f2997)
