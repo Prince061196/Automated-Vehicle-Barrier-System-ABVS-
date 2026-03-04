@@ -3,6 +3,18 @@
 An AI-powered access control system that combines Computer Vision and IoT to automate vehicle entry using real-time license plate recognition and Arduino-based barrier control.
 
 ---
+## 🚀 Why This Project Matters
+
+This system demonstrates the integration of:
+
+- Real-time object detection
+- Optical character recognition
+- Backend server architecture
+- Database management
+- Embedded systems communication
+- Physical hardware automation
+  
+---
 
 ## 📌 Overview
 
@@ -115,6 +127,13 @@ This project demonstrates:
 - Embedded systems communication
 - IoT automation
 
+---
+## 🧠 Engineering Challenges Solved
+
+- Handling real-time video processing efficiently
+- Optimizing OCR performance for accuracy
+- Managing serial communication reliability
+- Designing clean backend architecture
 ---
 
 ## 📷 Screenshots & Hardware Setup
