@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add Vehicle Owner - AVBS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        /* Dashboard layout styles */
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .left-panel {
+            width: 280px;
+            background: linear-gradient(180deg, #1a237e 0%, #283593 100%);
+            padding: 20px;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo-section {
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-section h2 {
+            margin: 0;
+            color: white;
+            font-size: 24px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.2);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            width: 24px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        
+        /* Original container styles */
+        .container {
+            max-width: 600px;
+            margin: 0 auto 0 50px; /* Added left margin to prevent touching the navigation panel */
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #1a237e; /* Changed from green to match the navigation panel color */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #283593; /* Slightly lighter shade for hover effect */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* Update label and heading colors for better contrast */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333; /* Darker text for better readability */
+            font-weight: 500;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1a237e; /* Match with the theme color */
+            margin-bottom: 25px;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #333;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create EventSource for Server-Sent Events
+            const eventSource = new EventSource('/notifications/stream');
+            
+            // Add input event listeners for auto-capitalization
+            const ownerNameInput = document.getElementById('owner_name');
+            const ownerAddressInput = document.getElementById('owner_address');
+            const ownerContactInput = document.getElementById('owner_contact');
+
+            // Auto-capitalize owner name
+            ownerNameInput.addEventListener('input', function(e) {
+                this.value = this.value.toUpperCase();
+            });
+
+            // Auto-capitalize address
+            ownerAddressInput.addEventListener('input', function(e) {
+                this.value = this.value.toUpperCase();
+            });
+
+            // Phone number validation - updated to be more strict
+            ownerContactInput.addEventListener('keypress', function(e) {
+                // Prevent non-numeric input
+                if (e.key < '0' || e.key > '9') {
+                    e.preventDefault();
+                }
+            });
+
+            ownerContactInput.addEventListener('paste', function(e) {
+                // Prevent pasting non-numeric content
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const numericText = pastedText.replace(/\D/g, '');
+                
+                // Only paste if the result would be valid
+                const newValue = this.value + numericText;
+                if (newValue.length <= 10 && (!newValue.length || newValue[0] === '0')) {
+                    this.value = newValue.slice(0, 10);
+                }
+            });
+
+            // Form validation before submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const contact = ownerContactInput.value;
+                
+                // Check if contact number is exactly 10 digits and starts with 0
+                if (contact && (contact.length !== 10 || !contact.startsWith('0'))) {
+                    e.preventDefault();
+                    showNotification('Please enter a valid 10-digit phone number starting with 0', 'error');
+                    return;
+                }
+                
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Show notification based on response
+                    if (data.status === 'success') {
+                        showNotification('Owner details saved successfully!', 'success');
+                    } else if (data.status === 'duplicate') {
+                        showNotification('This owner has already been saved in the database', 'warning');
+                    } else {
+                        showNotification(data.message || 'Failed to save owner details', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to save owner details. Please try again.', 'error');
+                });
+            });
+        });
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                showNotification(data.message, data.status);
+            };
+
+            // Function to show notifications
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.style.position = 'fixed';
+                notification.style.top = '20px';
+                notification.style.right = '20px';
+                notification.style.padding = '15px 25px';
+                notification.style.borderRadius = '5px';
+                notification.style.color = 'white';
+                notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+                notification.style.zIndex = '1000';
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s ease-in-out';
+
+                // Set background color based on notification type
+                switch(type) {
+                    case 'success':
+                        notification.style.backgroundColor = '#4CAF50';
+                        break;
+                    case 'warning':
+                        notification.style.backgroundColor = '#ff9800';
+                        break;
+                    case 'error':
+                        notification.style.backgroundColor = '#f44336';
+                        break;
+                    default:
+                        notification.style.backgroundColor = '#2196F3';
+                }
+                
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                // Fade in
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                }, 100);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+
+                // Redirect if success
+                if (type === 'success') {
+                    setTimeout(() => {
+                        window.location.href = '/owners';
+                    }, 2000);
+                }
+            }
+
+            // Handle form submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Show notification based on response
+                    if (data.status === 'success') {
+                        showNotification('Owner details saved successfully!', 'success');
+                    } else if (data.status === 'duplicate') {
+                        showNotification('This owner has already been saved in the database', 'warning');
+                    } else {
+                        showNotification(data.message || 'Failed to save owner details', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to save owner details. Please try again.', 'error');
+                });
+            });
+        
+    </script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="logo-section">
+                <h2><i class="fas fa-shield-alt"></i> AVBS</h2>
+            </div>
+            <nav>
+                <a href="{{ url_for('index') }}" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('add_owner_form') }}" class="nav-item active">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add Vehicle Owner</span>
+                </a>
+                <a href="{{ url_for('view_owners') }}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Vehicle Owners</span>
+                </a>
+                <a href="{{ url_for('access_logs') }}" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>Access Logs</span>
+                </a>
+                <a href="{{ url_for('reports') }}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="{{ url_for('logout') }}" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <h1>Add Vehicle Owner</h1>
+                <form action="{{ url_for('save_owner') }}" method="POST">
+                    <div class="form-group">
+                        <label for="license_plate">License Plate Number:</label>
+                        <input type="text" name="license_plate" value="{{ license_plate }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="owner_name">Owner Name:</label>
+                        <input type="text" id="owner_name" name="owner_name" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="owner_address">Home Address:</label>
+                        <textarea id="owner_address" name="owner_address" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; resize: vertical;" autocomplete="off"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="owner_contact">Contact Number (10 digits starting with 0):</label>
+                        <input type="tel" 
+                               id="owner_contact" 
+                               name="owner_contact" 
+                               pattern="0[0-9]{9}" 
+                               maxlength="10" 
+                               placeholder="0XXXXXXXXX" 
+                               autocomplete="off"
+                               inputmode="numeric">
+                    </div>
+                    <button type="submit">Save Owner Details</button>
+                </form>
+                <a href="{{ url_for('index') }}" class="back-link">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

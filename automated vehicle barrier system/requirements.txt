@@ -1,0 +1,9 @@
+Flask
+Werkzeug
+mysql-connector-python
+opencv-python
+numpy
+ultralytics
+paddleocr
+reportlab
+pyserial
